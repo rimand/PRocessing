@@ -1,0 +1,116 @@
+import processing.serial.*; 
+Serial port;
+
+Slider[] slider = new Slider[2];
+String str;
+
+void setup() {
+  size(800, 800);
+  noStroke();
+  port = new Serial(this, "COM3", 9600);
+  slider[0] = new Slider("slider01:", 200, 100, 600);
+  slider[1] = new Slider("slider02:", 600, 100, 600);
+}
+
+void draw() {
+  background(255);
+  str = "";
+
+  for (Slider t : slider) {
+    t.run();
+
+    if (t.getNewValue()) {
+      println(t.ID + str(t.getValue()));
+      port.write(t.ID + str(t.getValue()));
+    }
+
+    str += t.getValue();
+    str += " ";
+  }
+
+  surface.setTitle(str);
+  delay(20);
+}
+
+void mousePressed() {
+  for (Slider t : slider) {
+    if (t.isOver()) {
+      t.over = true;
+    }
+  }
+}
+
+void mouseReleased() {
+  for (Slider t : slider) {
+    t.over = false;
+  }
+}
+
+class Slider {
+  String ID;
+  float x;
+  float y;
+  float h;
+  float w;
+  float H;
+  float intY;
+  float value;
+  float value_old;
+  boolean newState;
+  boolean over;
+
+  Slider(String _ID, float _x, float _y, float _h) {
+    ID = _ID;
+    x = _x;
+    y = _y;
+    h = 40;
+    w = 100;
+    intY = y;
+    H = _h;
+    value = 0;
+
+    y = intY+H-h;
+  }
+
+  void run() {
+    fill(100);
+    rect(x-w/2, intY-50, 120, 40);
+
+    fill(255);
+    textAlign(CENTER);
+    textSize(30);
+    text(int(value)*100/255 + "%", x-w/2 + 60, intY-19);
+
+    fill(200);
+    rect(x, intY, 20, H);
+
+    fill(60);
+    rect(x-w/2+10, y, w, h);
+
+    fill(0);
+    textAlign(CENTER);
+    textSize(30);
+    text(ID, x-w/2 + 60, intY+H+40);
+
+    value = map(y, intY, H+intY-h, 255, 0);
+
+    if (value != value_old) {
+      newState = true;
+      value_old = value;
+    } else newState = false;
+
+    if (over) y = constrain(mouseY, intY, intY+H-h);
+  }
+
+  int getValue() {
+    return int(value);
+  }
+
+  boolean isOver() {
+    return (mouseX >= x-w/2+10 && mouseX <= x-w/2+10+w && mouseY >= y && mouseY <= y+h);
+  }
+  
+  boolean getNewValue(){
+    return newState;
+  }
+}
