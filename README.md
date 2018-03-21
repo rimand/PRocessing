@@ -2,7 +2,7 @@
 Processing Code
 
 # Slider
-• run()
-• isOver()
-• getValue()
-• getNewValue()
+- run()
+- isOver()
+- getValue()
+- getNewValue()
